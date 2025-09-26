@@ -3,6 +3,7 @@ package com.my.jwt_test.config;
 import com.my.jwt_test.myjwt.JWTFilter;
 import com.my.jwt_test.myjwt.JWTUtil;
 import com.my.jwt_test.myjwt.LoginFilter;
+import com.my.jwt_test.oauth2.OAuth2SuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +19,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // OAuth2SuccessHandler 주입
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
 
     //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
@@ -25,9 +28,10 @@ public class SecurityConfig {
     //JWTUtil 주입
     private final JWTUtil jwtUtil;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, JWTUtil jwtUtil1) {
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, OAuth2SuccessHandler oAuth2SuccessHandler, JWTUtil jwtUtil1) {
 
         this.authenticationConfiguration = authenticationConfiguration;
+        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
 
         this.jwtUtil = jwtUtil1;
     }
@@ -76,6 +80,11 @@ public class SecurityConfig {
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        http
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2SuccessHandler));
+
 
         return http.build();
     }
